@@ -16,13 +16,14 @@ public class PictureController {
 
     @GetMapping("/picture")
     public ResponseEntity<?> getPictureUrl(@RequestParam(name = "query", required = false) String query,
-                                           @RequestParam(name = "count", required = false) int count){
+                                           @RequestParam(name = "count", required = false) int count) {
         return queryService.getPath(query, count);
     }
 
     @GetMapping("/category")
-    public ResponseEntity<?> getCategory(){
+    public ResponseEntity<?> getCategory() {
         return queryService.getCategory();
     }
+
 
 }
