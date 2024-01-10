@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +29,20 @@ public class QueryService {
      */
 
     public ResponseEntity<?> getPath(String rusName, int count) {
-        String queryRusName = null;
+        String queryRusName;
         queryRusName = upperFirstSymbol(URLDecoder.decode(rusName, StandardCharsets.UTF_8));
 
-        String queryName = queryRepository.getQueryByRusName(queryRusName) != null ?
-                queryRepository.getQueryByRusName(queryRusName).getEnName() : queryRusName;
+        String queryName;
+        if(queryRusName.isEmpty()){
+            if(count > 1){
+                queryName = "animal";
+            }
+            else
+                queryName = getRandomCategory();
+        } else{
+            queryName = queryRepository.getQueryByRusName(queryRusName) != null ?
+                    queryRepository.getQueryByRusName(queryRusName).getEnName() : queryRusName;
+        }
         AnswerEntity answerEntity = unsplashApi.getPicture(queryName.toLowerCase(), count);
         if (answerEntity.getAnswerCode() == 200) {
             List<PictureEntity> pictures = answerEntity.getPictures();
@@ -62,5 +73,13 @@ public class QueryService {
             return str;
         String newStr = str.toLowerCase();
         return Character.toUpperCase(newStr.charAt(0)) + newStr.substring(1);
+    }
+
+    private String getRandomCategory(){
+        List<String> list = queryRepository.findAll().stream()
+                .map(Query::getEnName)
+                .toList();
+        return list.get(new Random()
+                .nextInt(list.size()));
     }
 }
